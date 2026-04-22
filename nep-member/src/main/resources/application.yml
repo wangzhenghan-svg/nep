@@ -1,0 +1,62 @@
+
+server:
+  #配置SpringBoot的端口号
+  port: 8020
+  # 配置SpringBoot的访问路径
+#  servlet:
+#    context-path: /myboot
+  # 配置SpringBoot的访问地址
+  address: 127.0.0.1
+
+
+
+
+# 配置MyBatis的数据源
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/nep?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
+
+    username: root
+    password: root
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+
+## MyBatis的配置
+## 配置mapper映射文件路径
+mybatis:
+  # 配置驼峰命名转换
+  configuration:
+    map-underscore-to-camel-case: true
+  mapper-locations: classpath:mapper/*.xml
+## 定义实体类的别名
+  type-aliases-package: com.neusoft.yth.nepBackend.entity
+
+
+
+## 配置日志输出
+logging:
+  level:
+    ## 配置MyBatis的日志输出级别  error  info  debug
+    root: error
+    org.springframework: error
+    ##  能够输出MyBatis执行的SQ 语句
+    com.neusoft.yth.nepBackend.mapper: debug
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

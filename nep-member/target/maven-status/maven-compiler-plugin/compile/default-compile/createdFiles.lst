@@ -1,0 +1,5 @@
+com\neusoft\yth\nepBackend\MemberApplication.class
+com\neusoft\yth\nepBackend\controller\MemberController.class
+com\neusoft\yth\nepBackend\mapper\MemberMapper.class
+com\neusoft\yth\nepBackend\service\impl\MemberServiceImpl.class
+com\neusoft\yth\nepBackend\service\IMemberService.class

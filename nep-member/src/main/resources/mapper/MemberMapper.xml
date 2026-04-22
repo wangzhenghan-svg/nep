@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--    -->
+<!-- DOCTYPE ： 约定文件的标签的内容，顺序和属性的值   -->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace 必须是Mapper的接口名    -->
+<mapper namespace="com.neusoft.yth.nepBackend.member.mapper.MemberMapper">
+
+    <insert id="insert" parameterType="member">
+        <selectKey keyProperty="memId" resultType="int" order="AFTER" keyColumn="mem_Id">
+            select last_insert_id()
+        </selectKey>
+        insert into member ( mem_number, mem_name, mem_pwd, mem_sex, mem_birthday, province_id, city_id, address, role_id, mem_state, remarks)
+        values (#{memNumber}, #{memName}, #{memPwd}, #{memSex}, #{memBirthday}, #{provinceId}, #{cityId}, #{address}, 3, 1, #{remarks})
+    </insert>
+
+
+    <update id="updateMember">
+        update member
+        <set>
+            <if test="memNumber != null and memNumber != ''">
+                mem_number = #{memNumber},
+            </if>
+            <if test="memPwd != null and memPwd != ''">
+                mem_pwd = #{memPwd},
+            </if>
+            <if test="memSex != null and memSex != '' ">
+                mem_sex = #{memSex},
+            </if>
+            <if test="memBirthday != null">
+                mem_birthday = #{memBirthday},
+            </if>
+            <if test="provinceId != null">
+                province_id = #{provinceId},
+            </if>
+            <if test="cityId != null">
+                city_id = #{cityId},
+            </if>
+            <if test="address != null and address != ''">
+                address = #{address},
+            </if>
+            <if test="verifyCode != null and verifyCode != ''">
+                verify_Code = #{verifyCode},
+            </if>
+            <if test="remarks != null and remarks != ''">
+                remarks = #{remarks},
+            </if>
+            <if test="codeTime != null">
+                code_time = #{codeTime},
+            </if>
+            <if test="memName != null and memName != ''">
+                mem_name = #{memName},
+            </if>
+        </set>
+        where mem_id = #{memId}
+    </update>
+
+    <select id="selectAll" resultType="member">
+        select  * from member
+    </select>
+
+
+
+    <select id="selectCountByNumber" resultType="java.lang.Integer">
+        select count(*)
+        from member
+        where mem_number = #{ memNumber }
+    </select>
+
+    <select id="selectByNumber" resultType="member">
+        select * from member
+        where mem_number = #{ logInID }
+    </select>
+
+    <select id="selectCountByTime" resultType="java.lang.Integer">
+        select count(*)
+        from member
+        where mem_number = #{ memNumber } and verify_Code = #{ verifyCode }
+          and code_time &gt; #{ codeTime }
+    </select>
+
+</mapper>
