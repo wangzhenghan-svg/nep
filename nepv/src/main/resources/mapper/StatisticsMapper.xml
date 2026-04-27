@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.neusoft.yth.nepBackend.nepv.mapper.StatisticsMapper">
+
+    <select id="getProvinceSO2Stats" resultType="com.neusoft.yth.nepBackend.nepv.dto.ProvinceStatsDTO">
+        <![CDATA[
+        SELECT
+            p.province_code as provinceCode,
+            p.province_name as provinceName,
+            COUNT(CASE WHEN d.so2 > a.so2_max THEN 1 END) as so2ExceedCount
+        FROM province p
+                 LEFT JOIN detection_data d ON p.province_code = d.province_code
+                 LEFT JOIN aqi_level a ON d.aqi_level_id = a.aqi_id
+        GROUP BY p.province_code, p.province_name
+        ]]>
+    </select>
+
+    <select id="getProvincePM25Stats" resultType="com.neusoft.yth.nepBackend.nepv.dto.ProvinceStatsDTO">
+        <![CDATA[
+        SELECT
+            p.province_code as provinceCode,
+            p.province_name as provinceName,
+            COUNT(CASE WHEN d.spm > a.spm_max THEN 1 END) as pm25ExceedCount
+        FROM province p
+                 LEFT JOIN detection_data d ON p.province_code = d.province_code
+                 LEFT JOIN aqi_level a ON d.aqi_level_id = a.aqi_id
+        GROUP BY p.province_code, p.province_name
+        ]]>
+    </select>
+
+    <select id="getProvinceCOStats" resultType="com.neusoft.yth.nepBackend.nepv.dto.ProvinceStatsDTO">
+        <![CDATA[
+        SELECT
+            p.province_code as provinceCode,
+            p.province_name as provinceName,
+            COUNT(CASE WHEN d.co > a.co_max THEN 1 END) as coExceedCount
+        FROM province p
+                 LEFT JOIN detection_data d ON p.province_code = d.province_code
+                 LEFT JOIN aqi_level a ON d.aqi_level_id = a.aqi_id
+        GROUP BY p.province_code, p.province_name
+        ]]>
+    </select>
+
+    <select id="getProvinceAQIStats" resultType="com.neusoft.yth.nepBackend.nepv.dto.ProvinceStatsDTO">
+        <![CDATA[
+        SELECT
+            p.province_code as provinceCode,
+            p.province_name as provinceName,
+            COUNT(CASE WHEN d.aqi_value > a.aqi_max THEN 1 END) as aqiExceedCount
+        FROM province p
+                 LEFT JOIN detection_data d ON p.province_code = d.province_code
+                 LEFT JOIN aqi_level a ON d.aqi_level_id = a.aqi_id
+        GROUP BY p.province_code, p.province_name
+        ]]>
+    </select>
+
+    <select id="getAQILevelDistribution" resultType="com.neusoft.yth.nepBackend.nepv.dto.AQILevelStatsDTO">
+        <![CDATA[
+        SELECT
+            a.aqi_id as level,
+            a.chinese_explain as levelName,
+            COUNT(d.id) as count,
+            ROUND(COUNT(d.id) * 100.0 / (SELECT COUNT(*) FROM detection_data), 2) as percentage
+        FROM aqi_level a
+            LEFT JOIN detection_data d ON a.aqi_id = d.aqi_level_id
+        GROUP BY a.aqi_id, a.chinese_explain
+        ORDER BY a.aqi_id
+        ]]>
+    </select>
+
+    <select id="getAQITrend" resultType="com.neusoft.yth.nepBackend.nepv.dto.AQITrendDTO">
+        <![CDATA[
+        SELECT
+            DATE_FORMAT(d.detect_time, '%Y-%m') as month,
+            COUNT(CASE WHEN d.aqi_value > a.aqi_max THEN 1 END) as exceedCount
+        FROM detection_data d
+            LEFT JOIN aqi_level a ON d.aqi_level_id = a.aqi_id
+        WHERE d.detect_time >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+        GROUP BY DATE_FORMAT(d.detect_time, '%Y-%m')
+        ORDER BY month
+        ]]>
+    </select>
+
+    <select id="getRealtimeStats" resultType="com.neusoft.yth.nepBackend.nepv.dto.RealtimeStatsDTO">
+        <![CDATA[
+        SELECT
+            COUNT(*) as totalCount,
+            COUNT(CASE WHEN d.aqi_value <= a.aqi_max THEN 1 END) as passCount,
+            COUNT(CASE WHEN d.aqi_value > a.aqi_max THEN 1 END) as exceedCount
+        FROM detection_data d
+                 LEFT JOIN aqi_level a ON d.aqi_level_id = a.aqi_id
+        WHERE d.detect_time >= DATE_SUB(NOW(), INTERVAL 1 HOUR)
+        ]]>
+    </select>
+
+    <select id="getGridCoverage" resultType="com.neusoft.yth.nepBackend.nepv.dto.GridCoverageDTO">
+        <![CDATA[
+        SELECT
+            'province' as regionType,
+            p.province_name as regionName,
+            ROUND(COUNT(DISTINCT g.grid_id) * 100.0 / p.total_grids, 2) as coverageRate
+        FROM province p
+                 LEFT JOIN grid g ON p.province_code = g.province_code
+        GROUP BY p.province_code, p.province_name, p.total_grids
+
+        UNION ALL
+
+        SELECT
+            'city' as regionType,
+            c.city_name as regionName,
+            ROUND(COUNT(DISTINCT g.grid_id) * 100.0 / c.total_grids, 2) as coverageRate
+        FROM city c
+                 LEFT JOIN grid g ON c.city_code = g.city_code
+        GROUP BY c.city_code, c.city_name, c.total_grids
+        ]]>
+    </select>
+
+</mapper>

@@ -11,6 +11,7 @@
         <module name="nep-aqi" />
         <module name="nep-grid" />
         <module name="myCodeGenerator" />
+        <module name="nepv" />
         <module name="nep-entity" />
       </profile>
     </annotationProcessing>
