@@ -1,15 +1,11 @@
 <template>
   <div class="dashboard-container">
-    <!-- 顶部标题栏 -->
     <header class="dashboard-header">
       <h1 class="header-title">东软空气质量环保公众监督平台</h1>
     </header>
 
-    <!-- 主体内容区 -->
     <div class="dashboard-content">
-      <!-- 上排：三栏布局 -->
       <div class="dashboard-row top-row">
-        <!-- 左侧列 -->
         <div class="dashboard-col left-col">
           <div class="chart-panel">
             <div class="panel-header">
@@ -33,7 +29,6 @@
           </div>
         </div>
 
-        <!-- 中间列 -->
         <div class="dashboard-col center-col">
           <div class="chart-panel map-panel">
             <div class="panel-header">
@@ -63,7 +58,6 @@
           </div>
         </div>
 
-        <!-- 右侧列 -->
         <div class="dashboard-col right-col">
           <div class="chart-panel">
             <div class="panel-header">
@@ -88,7 +82,6 @@
         </div>
       </div>
 
-      <!-- 下排：趋势图 -->
       <div class="dashboard-row bottom-row">
         <div class="chart-panel full-width">
           <div class="panel-header">
@@ -99,7 +92,6 @@
       </div>
     </div>
 
-    <!-- 底部信息栏 -->
     <div class="dashboard-footer">
       <span class="footer-text">数据更新时间: {{ updateTime }}</span>
       <span class="footer-text">刷新间隔: 3秒</span>
@@ -112,7 +104,6 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import * as echarts from 'echarts'
 import { statisticsAPI } from '@/api/statistics'
 
-// DOM 引用
 const provinceCoverageChart = ref(null)
 const cityCoverageChart = ref(null)
 const aqiLevelChart = ref(null)
@@ -122,21 +113,17 @@ const so2Chart = ref(null)
 const coChart = ref(null)
 const trendChart = ref(null)
 
-// 实时统计数据
 const realtimeStats = ref({
   totalCount: 0,
   passCount: 0,
   exceedCount: 0
 })
 
-// 更新时间
 const updateTime = ref(new Date().toLocaleString('zh-CN'))
 
-// 定时器和图表实例映射
 let refreshTimer = null
 const chartMap = new Map()
 
-// 生命周期钩子
 onMounted(() => {
   initCharts()
   fetchAllData()
@@ -158,14 +145,12 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', handleResize)
 })
 
-// 窗口大小变化处理
 const handleResize = () => {
   chartMap.forEach(chart => {
     if (chart) chart.resize()
   })
 }
 
-// 初始化所有图表实例
 const initCharts = () => {
   const charts = [
     { name: 'provinceCoverage', ref: provinceCoverageChart },
@@ -186,7 +171,6 @@ const initCharts = () => {
   })
 }
 
-// 获取所有数据
 const fetchAllData = async () => {
   try {
     console.log('[Dashboard] 开始获取数据...')
@@ -212,26 +196,35 @@ const fetchAllData = async () => {
     ])
 
     console.log('[Dashboard] 数据获取成功')
+    console.log('[ProvinceSO2]', provinceSO2Res)
+    console.log('[GridCoverage]', gridCoverageRes)
+    console.log('[Realtime]', realtimeRes)
 
-    if (realtimeRes.data) {
-      realtimeStats.value = realtimeRes.data
+    if (realtimeRes && realtimeRes.totalCount !== undefined) {
+      realtimeStats.value = realtimeRes
     }
 
     updateTime.value = new Date().toLocaleString('zh-CN')
 
-    const gridData = gridCoverageRes.data || []
-    const provinceData = provinceAQIRes.data || []
-    const aqiLevelData = aqiLevelRes.data || []
-    const trendData = aqiTrendRes.data || []
+    const gridData = gridCoverageRes || []
+    const provinceData = provinceAQIRes || []
+    const aqiLevelData = aqiLevelRes || []
+    const trendData = aqiTrendRes || []
+
+    console.log('[渲染数据] gridData:', gridData)
+    console.log('[渲染数据] provinceData:', provinceData)
 
     renderProvinceCoverageChart(gridData)
     renderCityCoverageChart(gridData)
-    renderMapChart(provinceData)
     renderAQILevelChart(aqiLevelData)
-    renderPM25Chart(provincePM25Res.data || [])
-    renderSO2Chart(provinceSO2Res.data || [])
-    renderCOChart(provinceCORes.data || [])
+    renderPM25Chart(provincePM25Res || [])
+    renderSO2Chart(provinceSO2Res || [])
+    renderCOChart(provinceCORes || [])
     renderTrendChart(trendData)
+
+    setTimeout(() => {
+      renderMapChart(provinceData)
+    }, 100)
 
   } catch (error) {
     console.error('[Dashboard] 获取数据失败，加载模拟数据:', error)
@@ -239,7 +232,6 @@ const fetchAllData = async () => {
   }
 }
 
-// 加载模拟数据（后端未就绪时使用）
 const loadMockData = () => {
   updateTime.value = new Date().toLocaleString('zh-CN')
 
@@ -296,21 +288,26 @@ const loadMockData = () => {
 
   renderProvinceCoverageChart(mockGridCoverage)
   renderCityCoverageChart(mockGridCoverage)
-  renderMapChart(mockProvinceData)
   renderAQILevelChart(mockAQILevel)
   renderPM25Chart(mockProvinceData)
   renderSO2Chart(mockProvinceData)
   renderCOChart(mockProvinceData)
   renderTrendChart(mockTrend)
+
+  setTimeout(() => {
+    renderMapChart(mockProvinceData)
+  }, 100)
 }
 
-// 渲染省网格覆盖率柱状图
 const renderProvinceCoverageChart = (data) => {
   const chart = chartMap.get('provinceCoverage')
   if (!chart) return
 
   const provinceData = data.filter(item => item.regionType === 'province')
-  if (provinceData.length === 0) return
+  if (provinceData.length === 0) {
+    console.warn('[ProvinceCoverage] 数据为空')
+    return
+  }
 
   const option = {
     tooltip: {
@@ -362,13 +359,15 @@ const renderProvinceCoverageChart = (data) => {
   chart.setOption(option)
 }
 
-// 渲染城市网格覆盖率柱状图
 const renderCityCoverageChart = (data) => {
   const chart = chartMap.get('cityCoverage')
   if (!chart) return
 
   const cityData = data.filter(item => item.regionType === 'city')
-  if (cityData.length === 0) return
+  if (cityData.length === 0) {
+    console.warn('[CityCoverage] 数据为空')
+    return
+  }
 
   const option = {
     tooltip: {
@@ -420,10 +419,12 @@ const renderCityCoverageChart = (data) => {
   chart.setOption(option)
 }
 
-// 渲染 AQI 级别分布饼图
 const renderAQILevelChart = (data) => {
   const chart = chartMap.get('aqiLevel')
-  if (!chart || data.length === 0) return
+  if (!chart || data.length === 0) {
+    console.warn('[AQILevel] 数据为空')
+    return
+  }
 
   const colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe', '#00f2fe']
 
@@ -486,66 +487,81 @@ const renderAQILevelChart = (data) => {
   chart.setOption(option)
 }
 
-// 渲染中国地图
 const renderMapChart = (data) => {
   const chart = chartMap.get('map')
   if (!chart) return
 
-  const option = {
-    tooltip: {
-      trigger: 'item',
-      formatter: '{b}: {c}',
-      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-      borderColor: '#e0e0e0',
-      textStyle: { color: '#333' }
-    },
-    visualMap: {
-      min: 0,
-      max: 100,
-      left: 'left',
-      top: 'bottom',
-      text: ['高', '低'],
-      calculable: true,
-      textStyle: { color: '#666' },
-      inRange: {
-        color: ['#e3f2fd', '#1976d2']
-      }
-    },
-    series: [{
-      type: 'map',
-      map: 'china',
-      roam: false,
-      label: {
-        show: true,
-        fontSize: 10,
-        color: '#666'
-      },
-      itemStyle: {
-        areaColor: '#f5f5f5',
-        borderColor: '#ddd',
-        borderWidth: 1
-      },
-      emphasis: {
-        itemStyle: {
-          areaColor: '#bbdefb'
-        },
-        label: {
-          color: '#333'
-        }
-      },
-      data: data.map(item => ({
-        name: item.provinceName,
-        value: item.aqiExceedCount
-      }))
-    }]
+  if (!data || data.length === 0) {
+    console.warn('[MapChart] 数据为空，跳过渲染')
+    return
   }
-  chart.setOption(option)
+
+  fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json')
+      .then(response => response.json())
+      .then(chinaJson => {
+        echarts.registerMap('china', chinaJson)
+
+        const option = {
+          tooltip: {
+            trigger: 'item',
+            formatter: '{b}: {c}',
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            borderColor: '#e0e0e0',
+            textStyle: { color: '#333' }
+          },
+          visualMap: {
+            min: 0,
+            max: 100,
+            left: 'left',
+            top: 'bottom',
+            text: ['高', '低'],
+            calculable: true,
+            textStyle: { color: '#666' },
+            inRange: {
+              color: ['#e3f2fd', '#1976d2']
+            }
+          },
+          series: [{
+            type: 'map',
+            map: 'china',
+            roam: false,
+            label: {
+              show: true,
+              fontSize: 10,
+              color: '#666'
+            },
+            itemStyle: {
+              areaColor: '#f5f5f5',
+              borderColor: '#ddd',
+              borderWidth: 1
+            },
+            emphasis: {
+              itemStyle: {
+                areaColor: '#bbdefb'
+              },
+              label: {
+                color: '#333'
+              }
+            },
+            data: data.map(item => ({
+              name: item.provinceName,
+              value: item.aqiExceedCount
+            }))
+          }]
+        }
+        chart.setOption(option)
+      })
+      .catch(error => {
+        console.error('[MapChart] 加载地图数据失败:', error)
+      })
 }
 
-// 渲染 PM2.5 超标累计柱状图
 const renderPM25Chart = (data) => {
   const chart = chartMap.get('pm25')
-  if (!chart || data.length === 0) return
+  if (!chart || data.length === 0) {
+    console.warn('[PM25] 数据为空')
+    return
+  }
 
   const option = {
     tooltip: {
@@ -596,10 +612,12 @@ const renderPM25Chart = (data) => {
   chart.setOption(option)
 }
 
-// 渲染 SO2 超标累计柱状图
 const renderSO2Chart = (data) => {
   const chart = chartMap.get('so2')
-  if (!chart || data.length === 0) return
+  if (!chart || data.length === 0) {
+    console.warn('[SO2] 数据为空')
+    return
+  }
 
   const option = {
     tooltip: {
@@ -650,10 +668,12 @@ const renderSO2Chart = (data) => {
   chart.setOption(option)
 }
 
-// 渲染 CO 超标累计柱状图
 const renderCOChart = (data) => {
   const chart = chartMap.get('co')
-  if (!chart || data.length === 0) return
+  if (!chart || data.length === 0) {
+    console.warn('[CO] 数据为空')
+    return
+  }
 
   const option = {
     tooltip: {
@@ -704,10 +724,12 @@ const renderCOChart = (data) => {
   chart.setOption(option)
 }
 
-// 渲染 12 个月超标趋势折线图
 const renderTrendChart = (data) => {
   const chart = chartMap.get('trend')
-  if (!chart || data.length === 0) return
+  if (!chart || data.length === 0) {
+    console.warn('[Trend] 数据为空')
+    return
+  }
 
   const option = {
     tooltip: {

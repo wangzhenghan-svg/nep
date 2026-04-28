@@ -23,13 +23,14 @@ request.interceptors.request.use(
 request.interceptors.response.use(
     response => {
         const res = response.data
+        console.log('[Response Data]', res)
 
         if (res.code === 200 || res.code === 1 || res.success === true) {
-            return res
+            return res.result
         }
 
-        ElMessage.error(res.message || '请求失败')
-        return Promise.reject(new Error(res.message || '请求失败'))
+        ElMessage.error(res.msg || res.message || '请求失败')
+        return Promise.reject(new Error(res.msg || res.message || '请求失败'))
     },
     error => {
         console.error('[Response Error]', error)
