@@ -23,7 +23,9 @@ public enum ResponseEnum {
     LOGIN_PASSWORD_ERROR(303, "登录密码错误"),
     LOGIN_VERIFY_CODE_ERROR(304,"验证码生成失败" ),
     LOGIN_CODE_ERROR_OR_TIMEOUT( 305, "验证失败或超时"),
-
+    PHONE_ALREADY_EXISTS(306, "手机号已注册"),
+    LOGIN_FAILED(307, "登录失败，请检查手机号或密码"),
+    USER_NOT_FOUND(308, "用户不存在"),
 
 
     //4:服务器端的数据问题
@@ -40,8 +42,8 @@ public enum ResponseEnum {
     ERROR(500, "系统异常"),
     INTERNAL_SERVER_ERROR(501, "服务器发生异常"),
     INSERT_FAILED(502, "插入数据失败"),
-    UPDATE_FAILED(503, "更新数据失败"),;
-
+    UPDATE_FAILED(503, "更新数据失败"),
+    SUBMIT_FAILED(504, "提交失败");
 
 
 

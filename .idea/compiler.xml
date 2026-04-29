@@ -9,8 +9,9 @@
         <outputRelativeToContentRoot value="true" />
         <module name="nep-member" />
         <module name="nep-aqi" />
-        <module name="nep-grid" />
         <module name="myCodeGenerator" />
+        <module name="nep-grid" />
+        <module name="nep-neps" />
         <module name="nepv" />
         <module name="nep-entity" />
       </profile>

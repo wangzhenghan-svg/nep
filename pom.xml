@@ -15,6 +15,7 @@
         <module>myCodeGenerator</module>
         <module>nep-grid</module>
         <module>nepv</module>
+        <module>nep-neps</module>
     </modules>
 
     <properties>

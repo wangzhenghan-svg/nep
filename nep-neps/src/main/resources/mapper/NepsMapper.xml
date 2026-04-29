@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.neusoft.yth.nepBackend.neps.mapper.NepsMapper">
+
+    <!-- 检查手机号是否已注册 -->
+    <select id="countByPhoneNumber" resultType="int">
+        SELECT COUNT(*) FROM member WHERE mem_number = #{phoneNumber}
+    </select>
+
+    <!-- 根据手机号查询用户ID -->
+    <select id="getMemberIdByPhone" resultType="int">
+        SELECT mem_id FROM member WHERE mem_number = #{phoneNumber}
+    </select>
+
+    <!-- 登录验证 -->
+    <select id="loginVerify" resultType="int">
+        SELECT COUNT(*) FROM member
+        WHERE mem_number = #{phoneNumber} AND mem_pwd = #{password} AND role_id = '3'
+    </select>
+
+    <!-- 插入反馈记录 -->
+    <insert id="insertFeedback" parameterType="com.neusoft.yth.nepBackend.entity.PublicSupervisorFeedback"
+            useGeneratedKeys="true" keyProperty="feedbackId">
+        INSERT INTO neps_feedback (
+            member_id, phone_number, province_id, city_id,
+            specific_address, aqi_level, air_quality_description, remarks
+        ) VALUES (
+                     #{memberId}, #{phoneNumber}, #{provinceId}, #{cityId},
+                     #{specificAddress}, #{aqiLevel}, #{airQualityDescription}, #{remarks}
+                 )
+    </insert>
+
+    <!-- 查询用户历史反馈记录 -->
+    <select id="selectHistoryByPhone" resultType="com.neusoft.yth.nepBackend.entity.PublicSupervisorFeedback">
+        SELECT
+            feedback_id, member_id, phone_number, province_id, city_id,
+            specific_address, aqi_level, air_quality_description,
+            feedback_time, remarks
+        FROM neps_feedback
+        WHERE phone_number = #{phoneNumber}
+        ORDER BY feedback_time DESC
+    </select>
+
+</mapper>
