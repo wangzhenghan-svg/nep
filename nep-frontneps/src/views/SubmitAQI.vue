@@ -19,10 +19,11 @@
         <p class="form-label">请预估当前空气质量指数等级：</p>
         <el-radio-group v-model="selectedAQI" class="aqi-radio-group">
           <el-radio
-            v-for="item in aqiLevels"
-            :key="item.level"
-            :label="item.level"
-            :style="{ '--radio-color': item.color }"
+              v-for="item in aqiLevels"
+              :key="item.level"
+              :value="item.level"
+              class="aqi-radio-item"
+              :data-color="item.color"
           >
             {{ item.chineseNum }}
           </el-radio>
@@ -30,17 +31,17 @@
 
         <p class="form-label">请填写反馈信息：</p>
         <el-input
-          v-model="feedbackDesc"
-          type="textarea"
-          :rows="4"
-          placeholder="请填写反馈信息"
+            v-model="feedbackDesc"
+            type="textarea"
+            :rows="4"
+            placeholder="请填写反馈信息"
         />
 
         <el-button
-          type="primary"
-          @click="handleSubmit"
-          :loading="loading"
-          style="width: 100%; margin-top: 20px;"
+            type="primary"
+            @click="handleSubmit"
+            :loading="loading"
+            style="width: 100%; margin-top: 20px;"
         >
           提交
         </el-button>
@@ -50,7 +51,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ArrowLeft, Grid } from '@element-plus/icons-vue'
 import { submitFeedback } from '@/api/neps'
@@ -69,6 +70,21 @@ const aqiLevels = [
   { level: 5, num: '五', chineseNum: '五', name: '重度污染', color: '#99004c', desc: '心脏病和肺病患者症状显著加剧，运动耐受力降低，健康人群普遍出现症状' },
   { level: 6, num: '六', chineseNum: '六', name: '严重污染', color: '#7e0023', desc: '健康人群运动耐受力降低，有明显强烈症状，提前出现某些疾病' }
 ]
+
+onMounted(() => {
+  const radioItems = document.querySelectorAll('.aqi-radio-item')
+  radioItems.forEach(item => {
+    const color = item.getAttribute('data-color')
+    const style = document.createElement('style')
+    style.textContent = `
+      .aqi-radio-item[data-color="${color}"].is-checked .el-radio__inner {
+        background-color: ${color} !important;
+        border-color: ${color} !important;
+      }
+    `
+    document.head.appendChild(style)
+  })
+})
 
 const handleSubmit = async () => {
   if (!selectedAQI.value) {
@@ -92,11 +108,17 @@ const handleSubmit = async () => {
       remarks: feedbackDesc.value
     }
 
-    await submitFeedback(feedbackData)
-    ElMessage.success('提交成功')
-    router.push('/history')
+    const res = await submitFeedback(feedbackData)
+
+    if (res.code === 200) {
+      ElMessage.success('提交成功')
+      router.push('/history')
+    } else {
+      ElMessage.error(res.msg || '提交失败')
+    }
   } catch (error) {
     console.error('提交失败', error)
+    ElMessage.error(error.response?.data?.msg || '提交失败，请重试')
   } finally {
     loading.value = false
   }
@@ -190,14 +212,5 @@ const goBack = () => {
   flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 20px;
-}
-
-:deep(.el-radio) {
-  margin-right: 0;
-}
-
-:deep(.el-radio__input.is-checked .el-radio__inner) {
-  background-color: var(--radio-color, #409eff);
-  border-color: var(--radio-color, #409eff);
 }
 </style>

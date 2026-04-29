@@ -1,5 +1,6 @@
 package com.neusoft.yth.nepBackend.neps.dao;
 
+import com.neusoft.yth.nepBackend.entity.Member;
 import com.neusoft.yth.nepBackend.entity.PublicSupervisorFeedback;
 
 import java.util.List;
@@ -15,6 +16,11 @@ public interface INepsDao {
      * 检查手机号是否已注册
      */
     boolean isPhoneExists(String phoneNumber);
+
+    /**
+     * 注册新用户
+     */
+    boolean registerMember(Member member);
 
     /**
      * 根据手机号获取用户ID

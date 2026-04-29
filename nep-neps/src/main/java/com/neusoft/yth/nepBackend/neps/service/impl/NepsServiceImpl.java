@@ -41,7 +41,10 @@ public class NepsServiceImpl implements INepsService {
         member.setRoleId("3");
         member.setMemState("1");
 
-        return Result.success("注册成功");
+        if (nepsDao.registerMember(member)) {
+            return Result.success("注册成功");
+        }
+        return Result.fail(ResponseEnum.REGISTER_FAILED);
     }
 
     @Override

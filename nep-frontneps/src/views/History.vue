@@ -8,7 +8,7 @@
 
     <div class="history-box">
       <div class="banner-image">
-        <img src="/images/header-bg.png" alt="保护环境人人有责" />
+<!--        <img src="/images/header-bg.png" alt="保护环境人人有责" />-->
         <p class="slogan">保护环境人人有责</p>
       </div>
 

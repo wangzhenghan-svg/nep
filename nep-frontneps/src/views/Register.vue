@@ -7,67 +7,66 @@
 
     <div class="register-box">
       <div class="banner-image">
-        <img src="/images/register-banner.png" alt="保护环境人人有责" />
         <p class="slogan">保护环境人人有责</p>
       </div>
 
       <el-form :model="registerForm" :rules="rules" ref="registerFormRef">
         <el-form-item label="手机号码" prop="phoneNumber">
           <el-input
-            v-model="registerForm.phoneNumber"
-            placeholder="请输入手机号码"
-            @blur="checkPhoneExists"
+              v-model="registerForm.phoneNumber"
+              placeholder="请输入手机号码"
+              @blur="checkPhoneExists"
           />
         </el-form-item>
 
         <el-form-item label="真实姓名" prop="realName">
           <el-input
-            v-model="registerForm.realName"
-            placeholder="真实姓名便于我们联系您"
+              v-model="registerForm.realName"
+              placeholder="真实姓名便于我们联系您"
           />
         </el-form-item>
 
         <el-form-item label="出生日期" prop="birthDate">
           <el-date-picker
-            v-model="registerForm.birthDate"
-            type="date"
-            placeholder="年 /月/日"
-            format="YYYY-MM-DD"
-            value-format="YYYY-MM-DD"
+              v-model="registerForm.birthDate"
+              type="date"
+              placeholder="年 /月/日"
+              format="YYYY-MM-DD"
+              value-format="YYYY-MM-DD"
           />
         </el-form-item>
 
         <el-form-item label="性别" prop="gender">
           <el-radio-group v-model="registerForm.gender">
-            <el-radio label="男">男</el-radio>
-            <el-radio label="女">女</el-radio>
+            <el-radio value="男">男</el-radio>
+            <el-radio value="女">女</el-radio>
           </el-radio-group>
         </el-form-item>
 
         <el-form-item label="密码" prop="password">
           <el-input
-            v-model="registerForm.password"
-            type="password"
-            placeholder="请输入密码"
-            show-password
+              v-model="registerForm.password"
+              type="password"
+              placeholder="请输入密码"
+              show-password
           />
         </el-form-item>
 
         <el-form-item label="确认密码" prop="confirmPassword">
           <el-input
-            v-model="registerForm.confirmPassword"
-            type="password"
-            placeholder="请再次输入密码"
-            show-password
+              v-model="registerForm.confirmPassword"
+              type="password"
+              placeholder="请再次输入密码"
+              show-password
           />
         </el-form-item>
 
         <el-form-item>
           <el-button
-            type="primary"
-            @click="handleRegister"
-            :loading="loading"
-            style="width: 100%;"
+              type="primary"
+              @click="handleRegister"
+              :loading="loading"
+              style="width: 100%;"
           >
             注册
           </el-button>
@@ -134,16 +133,19 @@ const checkPhoneExists = async () => {
 
   try {
     const res = await checkPhone(registerForm.phoneNumber)
-    if (res.data) {
+    if (res.code === 306) {
       ElMessage.warning('该手机号已被注册')
     }
   } catch (error) {
     console.error('验证手机号失败', error)
+    ElMessage.error('验证手机号失败')
   }
 }
 
 const handleRegister = async () => {
-  await registerFormRef.value.validate()
+  const valid = await registerFormRef.value.validate().catch(() => false)
+  if (!valid) return
+
   loading.value = true
 
   try {
@@ -156,11 +158,17 @@ const handleRegister = async () => {
       gender: registerForm.gender
     }
 
-    await register(registerData)
-    ElMessage.success('注册成功')
-    router.push('/login')
+    const res = await register(registerData)
+
+    if (res.code === 200) {
+      ElMessage.success('注册成功')
+      router.push('/login')
+    } else {
+      ElMessage.error(res.msg || '注册失败')
+    }
   } catch (error) {
     console.error('注册失败', error)
+    ElMessage.error(error.response?.data?.msg || '注册失败，请重试')
   } finally {
     loading.value = false
   }

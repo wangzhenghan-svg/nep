@@ -18,6 +18,16 @@
         WHERE mem_number = #{phoneNumber} AND mem_pwd = #{password} AND role_id = '3'
     </select>
 
+    <!-- 插入新用户 -->
+    <insert id="insertMember" parameterType="com.neusoft.yth.nepBackend.entity.Member"
+            useGeneratedKeys="true" keyProperty="memId">
+        INSERT INTO member (
+            mem_number, mem_pwd, mem_name, mem_sex, role_id, mem_state
+        ) VALUES (
+                     #{memNumber}, #{memPwd}, #{memName}, #{memSex}, #{roleId}, #{memState}
+                 )
+    </insert>
+
     <!-- 插入反馈记录 -->
     <insert id="insertFeedback" parameterType="com.neusoft.yth.nepBackend.entity.PublicSupervisorFeedback"
             useGeneratedKeys="true" keyProperty="feedbackId">

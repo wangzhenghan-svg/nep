@@ -1,5 +1,6 @@
 package com.neusoft.yth.nepBackend.neps.dao.impl;
 
+import com.neusoft.yth.nepBackend.entity.Member;
 import com.neusoft.yth.nepBackend.entity.PublicSupervisorFeedback;
 import com.neusoft.yth.nepBackend.neps.dao.INepsDao;
 import com.neusoft.yth.nepBackend.neps.mapper.NepsMapper;
@@ -23,6 +24,11 @@ public class NepsDaoImpl implements INepsDao {
     @Override
     public boolean isPhoneExists(String phoneNumber) {
         return nepsMapper.countByPhoneNumber(phoneNumber) > 0;
+    }
+
+    @Override
+    public boolean registerMember(Member member) {
+        return nepsMapper.insertMember(member) > 0;
     }
 
     @Override

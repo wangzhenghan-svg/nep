@@ -1,9 +1,6 @@
 package com.neusoft.yth.nepBackend.enums;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
-import lombok.Setter;
 
 /**
  * @author YTH
@@ -26,6 +23,7 @@ public enum ResponseEnum {
     PHONE_ALREADY_EXISTS(306, "手机号已注册"),
     LOGIN_FAILED(307, "登录失败，请检查手机号或密码"),
     USER_NOT_FOUND(308, "用户不存在"),
+    REGISTER_FAILED(309, "注册失败，请稍后重试"),
 
 
     //4:服务器端的数据问题
